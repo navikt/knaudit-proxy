@@ -53,7 +53,7 @@ func sendAuditDataToDVH(blob string) error {
 
 	defer connection.Close()
 
-	stmt := goora.NewStmt("begin dvh_vpd_adm.als_api.log(p_event_document => :1); end;", connection)
+	stmt := goora.NewStmt("begin dvh_dmo.knaudit_api.log(p_event_document => :1); end;", connection)
 	defer stmt.Close()
 
 	rows, err := stmt.Query([]driver.Value{blob})
