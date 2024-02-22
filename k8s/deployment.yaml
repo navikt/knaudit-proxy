@@ -17,6 +17,9 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
       containers:
         - name: knaudit-proxy
           image: europe-north1-docker.pkg.dev/knada-gcp/knada-north/knaudit-proxy
@@ -24,9 +27,6 @@ spec:
             - containerPort: 8080
           securityContext:
             allowPrivilegeEscalation: false
-            fsGroup: 2000
-            runAsUser: 1000
-            runAsNonRoot: true
           env:
             - name: "GIN_MODE"
               value: "release"
