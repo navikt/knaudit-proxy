@@ -24,6 +24,8 @@ spec:
             - containerPort: 8080
           securityContext:
             allowPrivilegeEscalation: false
+            fsGroup: 2000
+            runAsUser: 1000
             runAsNonRoot: true
           env:
             - name: "GIN_MODE"
