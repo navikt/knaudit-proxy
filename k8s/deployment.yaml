@@ -15,11 +15,16 @@ spec:
       labels:
         app: knaudit-proxy
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
         - name: knaudit-proxy
           image: europe-north1-docker.pkg.dev/knada-gcp/knada-north/knaudit-proxy
           ports:
             - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
           env:
             - name: "GIN_MODE"
               value: "release"
