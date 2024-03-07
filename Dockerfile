@@ -11,4 +11,5 @@ FROM alpine:3
 
 WORKDIR /app
 COPY --from=builder /src/knaudit-proxy /app/knaudit-proxy
+RUN chmod +x /app/knaudit-proxy
 CMD ["/app/knaudit-proxy"]

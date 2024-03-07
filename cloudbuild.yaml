@@ -1,4 +1,6 @@
 options:
+  env:
+    - 'DOCKER_CLI_EXPERIMENTAL=enabled'
   logging: CLOUD_LOGGING_ONLY
   workerPool:
     "projects/knada-gcp/locations/europe-north1/workerPools/knada-cloudbuild-pool"
@@ -6,20 +8,32 @@ options:
 serviceAccount: "projects/knada-gcp/serviceAccounts/ci-knorten-cloud-build@knada-gcp.iam.gserviceaccount.com"
 
 steps:
-- name: "gcr.io/cloud-builders/docker"
-  id: "build-image"
-  args: ["build", "-t", "europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA", "." ]
-- name: "gcr.io/cloud-builders/docker"
-  id: "push image"
-  args: ["push", "europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA"]
-- name: "gcr.io/cloud-builders/gke-deploy"
-  id: "deploy"
-  args:
-  - run
-  - --filename=k8s
-  - --image=europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA
-  - --location=$_REGION
-  - --cluster=$_CLUSTER
-  - --timeout=10m0s
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--privileged', 'linuxkit/binfmt:v0.8']
+    id: 'initialize-qemu'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'create', '--name', 'mybuilder']
+    id: 'create-builder'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'use', 'mybuilder']
+    id: 'select-builder'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'inspect', '--bootstrap']
+    id: 'show-target-build-platforms'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'build', '--platform', '$_DOCKER_BUILDX_PLATFORMS', '-t', 'europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA', '--push', '.']
+    id: 'build-multi-architecture-container-image'
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    id: "deploy"
+    args:
+      - run
+      - --filename=k8s
+      - --image=europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA
+      - --location=$_REGION
+      - --cluster=$_CLUSTER
+      - --timeout=10m0s
 images:
-- "europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA"
+  - "europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA"
+
+substitutions:
+  _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'
