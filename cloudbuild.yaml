@@ -32,8 +32,6 @@ steps:
       - --location=$_REGION
       - --cluster=$_CLUSTER
       - --timeout=10m0s
-images:
-  - "europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA"
 
 substitutions:
   _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'
