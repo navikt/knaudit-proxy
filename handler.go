@@ -22,7 +22,9 @@ func jsonResponse(w http.ResponseWriter, msg *Message) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(msg.Code)
 	err := json.NewEncoder(w).Encode(msg)
-	slog.Error("json encoding response", "error", err)
+	if err != nil {
+		slog.Error("json encoding response", "error", err)
+	}
 }
 
 type Message struct {
@@ -32,6 +34,8 @@ type Message struct {
 }
 
 func (h *Server) ReportHandler(w http.ResponseWriter, r *http.Request) {
+	slog.Info("handling report request", "method", r.Method, "url", r.URL.String())
+
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		jsonResponse(w, &Message{
