@@ -26,7 +26,7 @@ spec:
           command:
           - "/app/knaudit-proxy"
           args:
-          - "-backend"
+          - "-backend-type"
           - "oracle"
           ports:
             - containerPort: 8080
