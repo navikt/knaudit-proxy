@@ -23,13 +23,11 @@ spec:
       containers:
         - name: knaudit-proxy
           image: europe-north1-docker.pkg.dev/knada-gcp/knada-north/knaudit-proxy
+          args: ["-backend", "oracle"]
           ports:
             - containerPort: 8080
           securityContext:
             allowPrivilegeEscalation: false
-          env:
-            - name: "GIN_MODE"
-              value: "release"
           envFrom:
             - secretRef:
                 name: knaudit-oracle-url
