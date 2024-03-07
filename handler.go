@@ -53,6 +53,8 @@ func (h *Server) ReportHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = h.sender.Send(string(data))
 	if err != nil {
+		slog.Error("sending audit data", "error", err)
+
 		jsonResponse(w, &Message{
 			Status:  "bad request",
 			Message: fmt.Errorf("storing audit data: %w", err).Error(),
@@ -62,6 +64,7 @@ func (h *Server) ReportHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.Info("audit data stored")
 	jsonResponse(w, &Message{
 		Status:  "ok",
 		Message: "audit data stored",
