@@ -9,12 +9,22 @@ import (
 )
 
 type SendCloser interface {
+	Open() error
 	Send(data string) error
 	Close() error
 }
 
 type OracleBackend struct {
 	client *go_ora.Connection
+}
+
+func (b *OracleBackend) Open() error {
+	err := b.client.Open()
+	if err != nil {
+		return fmt.Errorf("opening oracle database connection: %w", err)
+	}
+
+	return nil
 }
 
 func (b *OracleBackend) Send(data string) error {
@@ -48,11 +58,6 @@ func NewOracleBackend(url string) (*OracleBackend, error) {
 		return nil, fmt.Errorf("creating oracle database connection: %w", err)
 	}
 
-	err = client.Open()
-	if err != nil {
-		return nil, fmt.Errorf("opening oracle database connection: %w", err)
-	}
-
 	return &OracleBackend{
 		client: client,
 	}, nil
@@ -60,6 +65,10 @@ func NewOracleBackend(url string) (*OracleBackend, error) {
 
 type WriterBackend struct {
 	client io.Writer
+}
+
+func (s *WriterBackend) Open() error {
+	return nil
 }
 
 func (s *WriterBackend) Send(data string) error {

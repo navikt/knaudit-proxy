@@ -51,6 +51,23 @@ func (h *Server) ReportHandler(w http.ResponseWriter, r *http.Request) {
 		_ = r.Body.Close()
 	}()
 
+	err = h.sender.Open()
+	if err != nil {
+		slog.Error("opening audit backend", "error", err)
+
+		jsonResponse(w, &Message{
+			Status:  "internal server error",
+			Message: "opening audit backend",
+			Code:    http.StatusInternalServerError,
+		})
+
+		return
+	}
+
+	defer func() {
+		_ = h.sender.Close()
+	}()
+
 	err = h.sender.Send(string(data))
 	if err != nil {
 		slog.Error("sending audit data", "error", err)

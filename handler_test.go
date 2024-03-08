@@ -23,6 +23,10 @@ func (m mockSender) Close() error {
 	return m.Err
 }
 
+func (m mockSender) Open() error {
+	return m.Err
+}
+
 func TestHandlers(t *testing.T) {
 	t.Parallel()
 
@@ -41,7 +45,7 @@ func TestHandlers(t *testing.T) {
 		{
 			name:       "ReportHandler with error",
 			handler:    knaudit_proxy.NewServer(mockSender{Err: fmt.Errorf("oops")}).ReportHandler,
-			expect:     `{"status":"bad request","message":"storing audit data: oops","code":500}`,
+			expect:     `{"status":"internal server error","message":"opening audit backend","code":500}`,
 			expectCode: http.StatusInternalServerError,
 		},
 	}
