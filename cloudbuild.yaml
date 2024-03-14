@@ -1,13 +1,33 @@
 options:
   env:
     - 'DOCKER_CLI_EXPERIMENTAL=enabled'
+    - 'GOLANG_CROSS_VERSION=v1.21.5'
+    - 'PACKAGE_NAME=github.com/navikt/knaudit-proxy'
   logging: CLOUD_LOGGING_ONLY
   workerPool:
-    "projects/knada-gcp/locations/europe-north1/workerPools/knada-cloudbuild-pool"
+  -  "projects/knada-gcp/locations/europe-north1/workerPools/knada-cloudbuild-pool"
 
 serviceAccount: "projects/knada-gcp/serviceAccounts/ci-knorten-cloud-build@knada-gcp.iam.gserviceaccount.com"
 
 steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'run',
+      '--rm',
+      '-v /var/run/docker.sock:/var/run/docker.sock',
+      '-v `pwd`:/go/src/${PACKAGE_NAME}`',
+      '-w /go/src/${PACKAGE_NAME}',
+      'ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION}',
+      'release',
+        '--clean',
+        '--skip validate',
+        '--skip publish',
+        '--snapshot',
+        '--debug',
+        '--verbose',
+        '--config',
+        '/go/src/${PACKAGE_NAME}/.goreleaser.local.yml'
+    ]
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '--privileged', 'linuxkit/binfmt:v0.8']
     id: 'initialize-qemu'
@@ -23,15 +43,15 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['buildx', 'build', '--platform', '$_DOCKER_BUILDX_PLATFORMS', '-t', 'europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA', '--push', '.']
     id: 'build-multi-architecture-container-image'
-  - name: "gcr.io/cloud-builders/gke-deploy"
-    id: "deploy"
-    args:
-      - run
-      - --filename=k8s
-      - --image=europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA
-      - --location=$_REGION
-      - --cluster=$_CLUSTER
-      - --timeout=10m0s
+#  - name: "gcr.io/cloud-builders/gke-deploy"
+#    id: "deploy"
+#    args:
+#      - run
+#      - --filename=k8s
+#      - --image=europe-north1-docker.pkg.dev/$PROJECT_ID/knada-north/knaudit-proxy:$SHORT_SHA
+#      - --location=$_REGION
+#      - --cluster=$_CLUSTER
+#      - --timeout=10m0s
 
 substitutions:
   _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'

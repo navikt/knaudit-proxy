@@ -1,11 +1,11 @@
 package knaudit_proxy
 
 import (
-	"database/sql/driver"
+	"database/sql"
 	"fmt"
 	"io"
 
-	go_ora "github.com/sijms/go-ora/v2"
+	_ "github.com/godror/godror"
 )
 
 type SendCloser interface {
@@ -15,36 +15,32 @@ type SendCloser interface {
 }
 
 type OracleBackend struct {
-	client *go_ora.Connection
+	db            *sql.DB
+	connectString string
 }
 
-func (b *OracleBackend) Open() error {
-	err := b.client.Open()
+func (g *OracleBackend) Open() error {
+	db, err := sql.Open("godror", g.connectString)
 	if err != nil {
 		return fmt.Errorf("opening oracle database connection: %w", err)
 	}
 
+	g.db = db
+
 	return nil
 }
 
-func (b *OracleBackend) Send(data string) error {
-	stmt := go_ora.NewStmt("begin dvh_dmo.knaudit_api.log(p_event_document => :1); end;", b.client)
-	defer func() {
-		_ = stmt.Close()
-	}()
-
-	rows, err := stmt.Query([]driver.Value{data})
+func (g *OracleBackend) Send(data string) error {
+	_, err := g.db.Exec("begin dvh_dmo.knaudit_api.log(p_event_document => :1); end;", data)
 	if err != nil {
 		return fmt.Errorf("executing query: %w", err)
 	}
 
-	_ = rows.Close()
-
 	return nil
 }
 
-func (b *OracleBackend) Close() error {
-	err := b.client.Close()
+func (g *OracleBackend) Close() error {
+	err := g.db.Close()
 	if err != nil {
 		return fmt.Errorf("closing oracle database connection: %w", err)
 	}
@@ -52,15 +48,10 @@ func (b *OracleBackend) Close() error {
 	return nil
 }
 
-func NewOracleBackend(url string) (*OracleBackend, error) {
-	client, err := go_ora.NewConnection(url)
-	if err != nil {
-		return nil, fmt.Errorf("creating oracle database connection: %w", err)
-	}
-
+func NewOracleBackend(connectString string) *OracleBackend {
 	return &OracleBackend{
-		client: client,
-	}, nil
+		connectString: connectString,
+	}
 }
 
 type WriterBackend struct {

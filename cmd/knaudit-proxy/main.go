@@ -50,15 +50,17 @@ func main() { //nolint: funlen
 
 	switch backendType {
 	case "oracle":
-		backend, err = knauditproxy.NewOracleBackend(os.Getenv(envVarOracleURL))
-		if err != nil {
-			slog.Error("creating oracle backend", "error", err)
-			os.Exit(1)
-		}
+		backend = knauditproxy.NewOracleBackend(os.Getenv(envVarOracleURL))
 	case "stdout":
 		backend = knauditproxy.NewWriterBackend(os.Stdout)
 	default:
 		slog.Error("unknown backend type", "backend", backendType)
+		os.Exit(1)
+	}
+
+	err = backend.Open()
+	if err != nil {
+		slog.Error("opening audit backend", "error", err)
 		os.Exit(1)
 	}
 
