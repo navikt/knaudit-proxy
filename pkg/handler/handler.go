@@ -1,4 +1,4 @@
-package knaudit_proxy
+package handler
 
 import (
 	"encoding/json"
@@ -6,13 +6,15 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+
+	"github.com/navikt/knaudit-proxy/pkg/backend"
 )
 
 type Server struct {
-	sender SendCloser
+	sender backend.SendCloser
 }
 
-func NewServer(sender SendCloser) *Server {
+func NewServer(sender backend.SendCloser) *Server {
 	return &Server{
 		sender: sender,
 	}

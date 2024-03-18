@@ -1,4 +1,4 @@
-package knaudit_proxy
+package backend
 
 import (
 	"database/sql"

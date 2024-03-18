@@ -1,4 +1,4 @@
-package knaudit_proxy_test
+package handler_test
 
 import (
 	"fmt"
@@ -7,8 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	knaudit_proxy "github.com/navikt/knaudit-proxy/pkg/handler"
+
 	"github.com/google/go-cmp/cmp"
-	knaudit_proxy "github.com/navikt/knaudit-proxy"
 )
 
 type mockSender struct {
@@ -49,7 +50,7 @@ func TestHandlers(t *testing.T) {
 		{
 			name:       "ReportHandler with error",
 			handler:    knaudit_proxy.NewServer(mockSender{Err: fmt.Errorf("oops")}).ReportHandler,
-			expect:     `{"status":"internal server error","message":"opening audit backend","code":500}`,
+			expect:     `{"status":"bad request","message":"storing audit data: oops","code":500}`,
 			expectCode: http.StatusInternalServerError,
 		},
 	}

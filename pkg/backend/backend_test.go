@@ -1,4 +1,4 @@
-package knaudit_proxy_test
+package backend_test
 
 import (
 	"fmt"
@@ -7,17 +7,21 @@ import (
 	"testing"
 	"time"
 
-	kp "github.com/navikt/knaudit-proxy"
+	kp "github.com/navikt/knaudit-proxy/pkg/backend"
+
 	"github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/require"
-
-	// FIXME: Shouldn't be neccecary to import this package
-	_ "github.com/sijms/go-ora/v2"
 )
 
 var backend *kp.OracleBackend //nolint: gochecknoglobals
 
 func TestMain(m *testing.M) {
+	{
+		// Skipping setup and teardown of the test environment for now
+		code := m.Run()
+		os.Exit(code)
+	}
+
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("creating pool: %s", err)

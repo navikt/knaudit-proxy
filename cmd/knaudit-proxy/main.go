@@ -8,7 +8,8 @@ import (
 	"os"
 	"time"
 
-	knauditproxy "github.com/navikt/knaudit-proxy"
+	"github.com/navikt/knaudit-proxy/pkg/backend"
+	knauditproxy "github.com/navikt/knaudit-proxy/pkg/handler"
 )
 
 const (
@@ -44,31 +45,31 @@ func main() { //nolint: funlen
 	)
 
 	var (
-		backend knauditproxy.SendCloser
-		err     error
+		bck backend.SendCloser
+		err error
 	)
 
 	switch backendType {
 	case "oracle":
-		backend = knauditproxy.NewOracleBackend(os.Getenv(envVarOracleURL))
+		bck = backend.NewOracleBackend(os.Getenv(envVarOracleURL))
 	case "stdout":
-		backend = knauditproxy.NewWriterBackend(os.Stdout)
+		bck = backend.NewWriterBackend(os.Stdout)
 	default:
 		slog.Error("unknown backend type", "backend", backendType)
 		os.Exit(1)
 	}
 
-	err = backend.Open()
+	err = bck.Open()
 	if err != nil {
 		slog.Error("opening audit backend", "error", err)
 		os.Exit(1)
 	}
 
 	defer func() {
-		_ = backend.Close()
+		_ = bck.Close()
 	}()
 
-	h := knauditproxy.NewServer(backend)
+	h := knauditproxy.NewServer(bck)
 
 	mux := http.NewServeMux()
 
