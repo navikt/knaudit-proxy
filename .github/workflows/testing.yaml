@@ -1,9 +1,11 @@
 name: Testing
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
+  pull_request: {}
   push:
-  pull_request:
+    branches:
+      - main
 
 jobs:
   test:

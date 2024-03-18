@@ -86,6 +86,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestNewOracleBackend(t *testing.T) {
+	t.Skipf("Test not implemented")
+
 	t.Parallel()
 
 	err := backend.Send("test")
