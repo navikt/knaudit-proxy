@@ -29,28 +29,6 @@ test: $(GOTEST)
 	$(GOTEST) -v ./... -count=1
 .PHONY: test
 
-GOLANG_CROSS_VERSION  ?= v1.21.5
-PACKAGE_NAME          := github.com/navikt/knaudit-proxy
-release:
-	@docker run \
-		--rm \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v `pwd`:/go/src/$(PACKAGE_NAME) \
-		-w /go/src/$(PACKAGE_NAME) \
-		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --clean --skip validate --skip publish --snapshot --debug --verbose \
-		--config /go/src/$(PACKAGE_NAME)/.goreleaser.local.yml
-
-builder:
-	docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64
-	docker buildx inspect --bootstrap
-
-
-PLATFORMS         ?= linux/amd64,linux/arm64
-BUILDX_EXTRA_ARGS ?=
-image: | release
-	docker buildx build --platform $(PLATFORMS) --file Dockerfile -t knaudit-proxy:latest $(BUILDX_EXTRA_ARGS) .
-
 lint: $(GOLANGCILINT)
 	$(GOLANGCILINT) run
 .PHONY: lint

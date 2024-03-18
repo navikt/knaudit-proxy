@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"io"
 
-	_ "github.com/godror/godror"
+	_ "github.com/sijms/go-ora/v2"
 )
 
 type SendCloser interface {
 	Open() error
 	Send(data string) error
+	Ping() error
 	Close() error
 }
 
@@ -20,12 +21,21 @@ type OracleBackend struct {
 }
 
 func (g *OracleBackend) Open() error {
-	db, err := sql.Open("godror", g.connectString)
+	db, err := sql.Open("oracle", g.connectString)
 	if err != nil {
 		return fmt.Errorf("opening oracle database connection: %w", err)
 	}
 
 	g.db = db
+
+	return nil
+}
+
+func (g *OracleBackend) Ping() error {
+	err := g.db.Ping()
+	if err != nil {
+		return fmt.Errorf("pinging oracle database: %w", err)
+	}
 
 	return nil
 }
@@ -59,6 +69,10 @@ type WriterBackend struct {
 }
 
 func (s *WriterBackend) Open() error {
+	return nil
+}
+
+func (s *WriterBackend) Ping() error {
 	return nil
 }
 

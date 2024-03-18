@@ -21,6 +21,7 @@ func NewServer(sender SendCloser) *Server {
 func jsonResponse(w http.ResponseWriter, msg *Message) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(msg.Code)
+
 	err := json.NewEncoder(w).Encode(msg)
 	if err != nil {
 		slog.Error("json encoding response", "error", err)

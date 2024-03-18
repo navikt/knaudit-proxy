@@ -19,6 +19,10 @@ func (m mockSender) Send(_ string) error {
 	return m.Err
 }
 
+func (m mockSender) Ping() error {
+	return m.Err
+}
+
 func (m mockSender) Close() error {
 	return m.Err
 }
