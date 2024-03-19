@@ -15,6 +15,8 @@ GOTEST               ?= $(shell command -v gotest || echo "$(GOBIN)/gotest")
 GOTEST_VERSION       := v0.0.6
 STATICCHECK          ?= $(shell command -v staticcheck || echo "$(GOBIN)/staticcheck")
 STATICCHECK_VERSION  := v0.4.6
+GOFUMPT              ?= $(shell command -v gofumpt || echo "$(GOBIN)/gofumpt")
+GOFUMPT_VERSION      := v0.6.0
 
 $(GOLANGCILINT):
 	$(call install-binary,golangci-lint,github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCILINT_VERSION))
@@ -25,6 +27,9 @@ $(GOTEST):
 $(STATICCHECK):
 	$(call install-binary,staticcheck,honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION))
 
+$(GOFUMPT):
+	$(call install-binary,gofumpt,mvdan.cc/gofumpt@$(GOFUMPT_VERSION))
+
 test: $(GOTEST)
 	$(GOTEST) -v ./... -count=1
 .PHONY: test
@@ -32,6 +37,9 @@ test: $(GOTEST)
 lint: $(GOLANGCILINT)
 	$(GOLANGCILINT) run
 .PHONY: lint
+
+format: $(GOFUMPT)
+	$(GOFUMPT) -w -s -extra -l .
 
 check: | lint test
 .PHONY: check

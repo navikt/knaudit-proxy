@@ -3,8 +3,9 @@ package backend
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/sijms/go-ora/v2"
 	"io"
+
+	_ "github.com/sijms/go-ora/v2"
 )
 
 type SendCloser interface {

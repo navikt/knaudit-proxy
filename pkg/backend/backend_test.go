@@ -16,12 +16,6 @@ import (
 var backend *kp.OracleBackend //nolint: gochecknoglobals
 
 func TestMain(m *testing.M) {
-	{
-		// Skipping setup and teardown of the test environment for now
-		code := m.Run()
-		os.Exit(code)
-	}
-
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("creating pool: %s", err)
