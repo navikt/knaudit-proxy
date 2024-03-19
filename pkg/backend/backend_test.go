@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 			"ORACLE_PASSWORD=testpass",
 		},
 		Mounts: []string{
-			fmt.Sprintf("%s/resources/container-entrypoint-initdb.d:/container-entrypoint-initdb.d", wd),
+			fmt.Sprintf("%s/../../resources/container-entrypoint-initdb.d:/container-entrypoint-initdb.d/", wd),
 		},
 		ExposedPorts: []string{"1521/tcp"},
 		Platform:     "linux/amd64",
