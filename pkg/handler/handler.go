@@ -1,4 +1,4 @@
-package knaudit_proxy
+package handler
 
 import (
 	"encoding/json"
@@ -6,13 +6,15 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+
+	"github.com/navikt/knaudit-proxy/pkg/backend"
 )
 
 type Server struct {
-	sender SendCloser
+	sender backend.SendCloser
 }
 
-func NewServer(sender SendCloser) *Server {
+func NewServer(sender backend.SendCloser) *Server {
 	return &Server{
 		sender: sender,
 	}
@@ -21,6 +23,7 @@ func NewServer(sender SendCloser) *Server {
 func jsonResponse(w http.ResponseWriter, msg *Message) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(msg.Code)
+
 	err := json.NewEncoder(w).Encode(msg)
 	if err != nil {
 		slog.Error("json encoding response", "error", err)
@@ -49,23 +52,6 @@ func (h *Server) ReportHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {
 		_ = r.Body.Close()
-	}()
-
-	err = h.sender.Open()
-	if err != nil {
-		slog.Error("opening audit backend", "error", err)
-
-		jsonResponse(w, &Message{
-			Status:  "internal server error",
-			Message: "opening audit backend",
-			Code:    http.StatusInternalServerError,
-		})
-
-		return
-	}
-
-	defer func() {
-		_ = h.sender.Close()
 	}()
 
 	err = h.sender.Send(string(data))
