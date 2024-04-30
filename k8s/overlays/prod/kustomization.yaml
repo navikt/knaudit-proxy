@@ -1,2 +1,7 @@
 resources:
 - ../../base
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: europe-north1-docker.pkg.dev/knada-gcp/knada-north/knaudit-proxy
+  newTag: b0272d1c693a23d47d8d16ba5591ec63adf831a4
