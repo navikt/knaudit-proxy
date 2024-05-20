@@ -5,7 +5,7 @@ go 1.22.1
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/ory/dockertest/v3 v3.10.0
-	github.com/sijms/go-ora/v2 v2.8.17
+	github.com/sijms/go-ora/v2 v2.8.18
 	github.com/stretchr/testify v1.9.0
 )
 
