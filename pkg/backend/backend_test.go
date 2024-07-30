@@ -9,14 +9,23 @@ import (
 
 	kp "github.com/navikt/knaudit-proxy/pkg/backend"
 
-	"github.com/ory/dockertest/v3"
+	dockertest "github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/require"
 )
 
 var backend *kp.OracleBackend //nolint: gochecknoglobals
 
 func TestMain(m *testing.M) {
-	pool, err := dockertest.NewPool("")
+	dockerHost := os.Getenv("HOME") + "/.colima/docker.sock"
+	_, err := os.Stat(dockerHost)
+	if err != nil {
+		// uses a sensible default on windows (tcp/http) and linux/osx (socket)
+		dockerHost = ""
+	} else {
+		dockerHost = "unix://" + dockerHost
+	}
+
+	pool, err := dockertest.NewPool(dockerHost)
 	if err != nil {
 		log.Fatalf("creating pool: %s", err)
 	}
