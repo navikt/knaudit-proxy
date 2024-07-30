@@ -16,16 +16,7 @@ import (
 var backend *kp.OracleBackend //nolint: gochecknoglobals
 
 func TestMain(m *testing.M) {
-	dockerHost := os.Getenv("HOME") + "/.colima/docker.sock"
-	_, err := os.Stat(dockerHost)
-	if err != nil {
-		// uses a sensible default on windows (tcp/http) and linux/osx (socket)
-		dockerHost = ""
-	} else {
-		dockerHost = "unix://" + dockerHost
-	}
-
-	pool, err := dockertest.NewPool(dockerHost)
+	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("creating pool: %s", err)
 	}
