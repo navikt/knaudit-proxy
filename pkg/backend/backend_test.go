@@ -9,7 +9,7 @@ import (
 
 	kp "github.com/navikt/knaudit-proxy/pkg/backend"
 
-	"github.com/ory/dockertest/v3"
+	dockertest "github.com/ory/dockertest/v3"
 	"github.com/stretchr/testify/require"
 )
 
