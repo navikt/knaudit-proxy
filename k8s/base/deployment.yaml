@@ -20,6 +20,12 @@ spec:
         runAsUser: 1000
         runAsGroup: 3000
         fsGroup: 2000
+      nodeSelector:
+        knada-infrastructure: ""
+      tolerations:
+        - key: "knada-infrastructure"
+          effect: "NoSchedule"
+          operator: "Exists"
       containers:
         - name: knaudit-proxy
           image: europe-north1-docker.pkg.dev/knada-gcp/knada-north/knaudit-proxy
